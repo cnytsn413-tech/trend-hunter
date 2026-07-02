@@ -6,10 +6,10 @@ import time
 st.set_page_config(page_title="WinningHunter Ultimate - E-Com Spy Tool", layout="wide", initial_sidebar_state="expanded")
 
 st.title("🎯 WinningHunter Pro: Ultimate Dropshipping Spy Suite")
-st.subheader("Yapay Zeka Destekli Reklam Analizi, Mağaza Casusluğu ve Gelişmiş Metrik Yönetimi")
+st.subheader("Yapay Zeka Destekli Reklam Analizi, Mağaza Casusluğu ve Mayıs-Haziran 2026 Canlı Trend Havuzu")
 
 # --- MANUEL ÜRÜN ARAMA ALANI ---
-search_query_input = st.text_input("🔍 Kelime ile Canlı Reklam Ara (Örn: Humidifier, Massager, Brush, Camera, Projector...)", "", help="Arama çubuğuna bir ürün adı yazarak doğrudan filtrelerden bağımsız arama yapabilirsiniz.")
+search_query_input = st.text_input("🔍 Kelime ile Canlı Reklam Ara (Örn: Ice, Fan, Camera, Cleaning, Projector...)", "", help="Arama çubuğuna bir ürün adı yazarak doğrudan filtrelerden bağımsız arama yapabilirsiniz.")
 
 # --- Sol Panel (Filtreler) ---
 st.sidebar.header("🛡️ Gelişmiş Casusluk Filtreleri")
@@ -21,57 +21,62 @@ category_filter = st.sidebar.selectbox(
     ["Tüm Kategoriler", "Ev & Dekorasyon", "Mutfak Pratik", "Evcil Hayvan", "Güzellik & Kozmetik", "Sağlık & Kişisel Bakım", "Anne & Bebek", "Teknoloji Aksesuarları", "Fitness & Spor"]
 )
 
-min_spend, max_spend = st.sidebar.slider("Tahmini Günlük Reklam Bütçesi ($)", 10, 5000, (10, 3500))
+min_spend, max_spend = st.sidebar.slider("Tahmini Günlük Reklam Bütçesi ($)", 10, 5000, (10, 4500))
 sort_by = st.sidebar.selectbox("Sıralama Kriteri", ["En Yüksek Etkileşim (Engagement)", "Viral Artış Hızı"])
 
-# --- TÜM METRİKLERİ VE KAZANAN ÜRÜNLERİ İÇEREN DEVASE VERİTABANI ---
+# --- 2026 MAYIS-HAZİRAN CANLI VE GENİŞLETİLMİŞ TREND VERİTABANI ---
 spy_database = {
     "US (Amerika)": [
         {
-            "title": "Anti-Gravity Levitating Humidifier", "niche": "Ev & Dekorasyon", "views": "4.2M", "likes": 310000, "days_running": 14, "cpa": 8.50, "margin": 75, "spend": 450, "store_url": "https://mysticshophome.com", "type": "🔥 WINNING PRODUCT", 
-            "hook": "Tired of boring humidifiers? This one literally defies gravity. 🤯 Get yours 50% OFF today!",
-            "audience": "Ev dekorasyonu, İç mimari, Modern teknoloji meraklıları | 22-45 Yaş | Unisex", "trend_base": [10, 25, 45, 80, 150, 240, 310]
+            "title": "IceAir Portable 3-in-1 Hydro Cooling Fan", "niche": "Ev & Dekorasyon", "views": "8.4M", "likes": 640000, "days_running": 12, "cpa": 9.20, "margin": 78, "spend": 850, "store_url": "https://iceair-cool.com", "type": "🔥 MAYIS-HAZİRAN 2026 WINNING", 
+            "hook": "Summer 2026 is hitting different! 🥵 Drop ice cubes in, turn it on, and blast -5°C instant arctic air anywhere.",
+            "audience": "Sıcak yaz ayları, Ev/Ofis soğutma, Kampçılar, Öğrenci evleri | 18-45 Yaş", "trend_base": [80, 150, 240, 380, 490, 580, 640]
         },
         {
-            "title": "Smart Cupping Therapy Massager", "niche": "Sağlık & Kişisel Bakım", "views": "6.7M", "likes": 520000, "days_running": 28, "cpa": 12.00, "margin": 80, "spend": 1200, "store_url": "https://recoverysmart.com", "type": "🔥 WINNING PRODUCT", 
-            "hook": "Recover like a pro athlete from your own bed. 🕒 5 minutes a day is all it takes to melt the pain away.",
-            "audience": "Fitness, Vücut Geliştirme, Kronik sırt/bel ağrısı çekenler, Masaj | 25-55 Yaş", "trend_base": [40, 90, 160, 250, 340, 430, 520]
+            "title": "Ultra-Sonic 360° Magnetic Window Cleaner", "niche": "Ev & Dekorasyon", "views": "5.1M", "likes": 390000, "days_running": 8, "cpa": 14.50, "margin": 72, "spend": 1100, "store_url": "https://glidewindow.com", "type": "📈 HAZİRAN 2026 YÜKSELEN TREND", 
+            "hook": "Clean the outside of your high-rise windows safely from the inside! 🤯 Heavy-duty magnetic lock does it for you.",
+            "audience": "Ev hanımları, Rezidans/Apartman sakinleri, Temizlik tüyoları | 25-55 Yaş", "trend_base": [20, 55, 110, 190, 260, 330, 390]
         },
         {
-            "title": "Crystal Hair Eraser Exfoliator", "niche": "Güzellik & Kozmetik", "views": "12.4M", "likes": 980000, "days_running": 45, "cpa": 4.50, "margin": 85, "spend": 1800, "store_url": "https://silky-skin-co.com", "type": "🔥 EVERGREEN PRODUCT", 
-            "hook": "No more razor burns, no more painful waxing. 🛑 This crystal eraser changes everything.",
-            "audience": "Cilt bakımı, Kişisel bakım, Epilasyon ve Kozmetik | 18-35 Yaş | Ağırlıklı Kadın", "trend_base": [200, 350, 500, 680, 800, 900, 980]
-        },
-        {
-            "title": "Flame Effect Air Humidifier Diffuser", "niche": "Ev & Dekorasyon", "views": "2.1M", "likes": 145000, "days_running": 9, "cpa": 6.20, "margin": 70, "spend": 280, "store_url": "https://flamediffuse.com", "type": "📈 VIRAL RISING", 
-            "hook": "Add moisture to your room while giving it an insane fireplace vibe. 🔥 Perfect for cozy nights.",
-            "audience": "Oda tasarımı (Room Setup), Oyuncu odası, Estetik ev ürünleri | 18-30 Yaş", "trend_base": [5, 15, 32, 55, 82, 115, 145]
+            "title": "AI Smart-Track Sports Phone Gimbal", "niche": "Teknoloji Aksesuarları", "views": "9.3M", "likes": 710000, "days_running": 19, "cpa": 11.00, "margin": 65, "spend": 1400, "store_url": "https://aotugimbal.com", "type": "🔥 HAZİRAN 2026 VIRAL", 
+            "hook": "No cameraman? No problem. 🎥 This 2026 AI mount locks onto your face and follows you 360° seamlessly.",
+            "audience": "TikTok içerik üreticileri, Fitness vloggerları, Dansçılar | 16-35 Yaş", "trend_base": [100, 220, 340, 450, 540, 630, 710]
         }
     ],
     "EU (Avrupa Birliği)": [
         {
-            "title": "Sunset Lamp Bluetooth App Control", "niche": "Ev & Dekorasyon", "views": "3.5M", "likes": 280000, "days_running": 18, "cpa": 6.20, "margin": 78, "spend": 350, "store_url": "https://solarlamp-eu.com", "type": "🔥 HOT IN EUROPE", 
-            "hook": "Transform your room vibe with just one click. 🌅 Control over 16 million colors from your phone.",
-            "audience": "TikTok/Instagram içerik üreticileri, Fotoğrafçılık, Genç odası dekoru | 16-28 Yaş", "trend_base": [20, 50, 90, 140, 190, 240, 280]
+            "title": "IceAir Portable 3-in-1 Hydro Cooling Fan", "niche": "Ev & Dekorasyon", "views": "4.2M", "likes": 310000, "days_running": 10, "cpa": 8.90, "margin": 78, "spend": 550, "store_url": "https://iceair-cool.com", "type": "🔥 YAZ TRENDİ", 
+            "hook": "No AC in Europe? 🇪🇺 No worries. This desktop hydro cooler feels like a mini iceberg.",
+            "audience": "Avrupa yaz sıcakları, Klimasız evler, Ofis çalışanları | 20-40 Yaş", "trend_base": [30, 70, 120, 180, 230, 270, 310]
         },
         {
-            "title": "Self-Cleaning Pet Grooming Brush", "niche": "Evcil Hayvan", "views": "2.1M", "likes": 190000, "days_running": 11, "cpa": 4.50, "margin": 70, "spend": 250, "store_url": "https://pawsome-europe.com", "type": "👑 WINNING PRODUCT", 
-            "hook": "The easiest way to de-shed your pet without the mess! 🐾 One button cleans it all.",
-            "audience": "Kedi sahipleri, Köpek sahipleri, Evcil hayvan bakımı | 20-50 Yaş | Unisex", "trend_base": [15, 35, 65, 95, 130, 165, 190]
+            "title": "Self-Cleaning Electric Cat Litter Mat", "niche": "Evcil Hayvan", "views": "3.8M", "likes": 290000, "days_running": 15, "cpa": 7.50, "margin": 70, "spend": 600, "store_url": "https://pawsome-tech.com", "type": "👑 HAZİRAN 2026 WINNING", 
+            "hook": "Stop sweeping cat litter every single day. 🐾 This smart mat vacuums scattered litter automatically.",
+            "audience": "Kedi sahipleri, Pratik evcil hayvan çözümleri | 22-50 Yaş", "trend_base": [40, 85, 130, 175, 215, 250, 290]
         }
     ],
     "CA (Kanada)": [
         {
-            "title": "Portable Mini HD Pocket Projector", "niche": "Teknoloji Aksesuarları", "views": "3.1M", "likes": 240000, "days_running": 13, "cpa": 18.50, "margin": 60, "spend": 720, "store_url": "https://cybertech-us.com", "type": "🔥 WINNING PRODUCT", 
-            "hook": "Turn any blank wall into a 130-inch cinematic home theater. 🎬 Built-in speaker, connects to phone.",
-            "audience": "Ev sineması, Film/Dizi severler, Kamp ve Seyahat, Gadget meraklıları | 20-40 Yaş", "trend_base": [10, 35, 70, 110, 150, 195, 240]
+            "title": "4K Ultra-Short Throw Cinema Projector", "niche": "Teknoloji Aksesuarları", "views": "6.2M", "likes": 480000, "days_running": 14, "cpa": 22.00, "margin": 60, "spend": 1900, "store_url": "https://nextgencinema.com", "type": "🔥 2026 MEGA WINNING", 
+            "hook": "Just 10cm away from the wall gives you a massive 150-inch 4K home theater. 🎬 The future of movies is here.",
+            "audience": "Ev sineması, Netflix tutkunları, Lüks ev dizaynı | 25-45 Yaş", "trend_base": [50, 110, 190, 270, 350, 420, 480]
+        },
+        {
+            "title": "IceAir Portable 3-in-1 Hydro Cooling Fan", "niche": "Ev & Dekorasyon", "views": "2.1M", "likes": 160000, "days_running": 6, "cpa": 9.50, "margin": 75, "spend": 310, "store_url": "https://iceair-cool.com", "type": "📈 YÜKSELEN TREND", 
+            "hook": "Beat the 2026 summer heat waves instantly. Ultra-quiet and USB powered! ☀️",
+            "audience": "Ev dekoru, Taşınabilir klima arayanlar | 18-40 Yaş", "trend_base": [15, 40, 65, 95, 120, 145, 160]
         }
     ],
     "TR (Türkiye)": [
         {
-            "title": "Pratik Şarjlı Sebze Doğrayıcı", "niche": "Mutfak Pratik", "views": "620K", "likes": 45000, "days_running": 7, "cpa": 2.50, "margin": 65, "spend": 80, "store_url": "https://chefkitchentools.com", "type": "🔥 POPÜLER", 
-            "hook": "Yemek yaparken saatlerce soğan doğramaya son! 🧅 Şarjlı ve aşırı pratik.",
-            "audience": "Pratik mutfak araçları, Yemek tarifleri, Ev düzeni | 25-60 Yaş | Kadın & Erkek", "trend_base": [2, 7, 14, 22, 29, 37, 45]
+            "title": "Hazneli Otomatik Buz Küpü Yapıcı", "niche": "Mutfak Pratik", "views": "1.4M", "likes": 98000, "days_running": 7, "cpa": 3.20, "margin": 65, "spend": 250, "store_url": "https://pratikmutfagim.com", "type": "🔥 HAZİRAN 2026 POPÜLER", 
+            "hook": "Yaz sıcaklarında buzdolabında buz beklemeye son! 🧊 Tek tuşla 6 dakikada buz küpleri hazır.",
+            "audience": "Yaz içecekleri, Pratik mutfak aletleri, Ev partileri | 18-50 Yaş", "trend_base": [10, 25, 42, 60, 75, 88, 98]
+        },
+        {
+            "title": "Taşınabilir Mini Şarjlı Hava Soğutucu", "niche": "Ev & Dekorasyon", "views": "920K", "likes": 72000, "days_running": 5, "cpa": 4.00, "margin": 70, "spend": 180, "store_url": "https://iceair-cool.com", "type": "📈 YÜKSELEN TREND", 
+            "hook": "Masa başı çalışanlar ve klimasız odalar için Haziran 2026 kurtarıcısı! 💨 İçine su ekleyin, serinleyin.",
+            "audience": "Öğrenciler, Ofis çalışanları, Ekonomik serinleme | 16-40 Yaş", "trend_base": [8, 20, 35, 48, 58, 66, 72]
         }
     ]
 }
@@ -94,7 +99,7 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla") 
             if search_query_input.lower() in ad["title"].lower() or search_query_input.lower() in ad["niche"].lower():
                 filtered_ads.append(ad)
     else:
-        st.info(f"🤖 Yapay zeka botları {target_country} bölgesini süzüyor...")
+        st.info(f"🤖 Yapay zeka botları {target_country} pazarını süzüyor...")
         for ad in all_ads_list:
             if ad["country"] == target_country:
                 if category_filter == "Tüm Kategoriler" or ad["niche"] == category_filter:
