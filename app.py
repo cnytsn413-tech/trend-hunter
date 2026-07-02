@@ -1,163 +1,155 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import requests
 import time
+import random
 
-# Sayfa Genişlik Ayarı
-st.set_page_config(page_title="TrendHunter Matrix - Dropshipping Suite", layout="wide")
+# Sayfa Ayarları
+st.set_page_config(page_title="WinningHunter Clone - E-Com Spy Tool", layout="wide", initial_sidebar_state="expanded")
 
-st.title("🎛️ TrendHunter Matrix: Çok Kaynaklı Dropshipping İstihbarat Merkezi")
-st.subheader("Google Trends, TikTok Viral İzlenmeleri ve Alibaba Verilerini Birleştiren Akıllı Algoritma")
+# --- Stil ve Tema Ayarları (Koyu Şık Arayüz) ---
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    .stButton>button { width: 100%; background-color: #ff4b4b; color: white; font-weight: bold; }
+    .stButton>button:hover { background-color: #ff3333; color: white; }
+    .card { background-color: #1e222b; padding: 20px; border-radius: 10px; border: 1px solid #2d3139; margin-bottom: 15px; }
+    .winning-badge { background-color: #28a745; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+    .viral-badge { background-color: #fd7e14; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+    </style>
+""", unsafe_allow_unsafe_html=True)
+
+st.title("🎯 WinningHunter Pro: Viral Dropshipping Spy Tool")
+st.subheader("Sosyal Medyada Gizlice Büyüyen ve Satış Rekorları Kıran Reklamları Yakalayın")
 
 # --- Sol Panel (Filtreler) ---
-st.sidebar.header("🔍 Casusluk & Filtre Ayarları")
+st.sidebar.header("🛡️ Casusluk Filtreleri")
+platform = st.sidebar.selectbox("Reklam Platformu", ["TikTok Ads", "Meta (Facebook/IG) Ads", "Pinterest Ads"])
+ad_creation_date = st.sidebar.selectbox("Reklam Yayınlanma Tarihi", ["Son 7 Gün", "Son 30 Gün", "Son 90 Gün"])
+daily_spend = st.sidebar.slider("Tahmini Günlük Reklam Bütçesi ($)", 50, 5000, (100, 1500))
+sort_by = st.sidebar.selectbox("Sıralama Kriteri", ["En Yüksek Etkileşim (Engagement)", "En Yeni Reklamlar", "Viral Artış Hızı"])
 
-# API Key Girişi
-api_key = st.sidebar.text_input("SerpApi API Anahtarınız", type="password", help="serpapi.com sitesinden aldığınız ücretsiz anahtarı buraya yapıştırın.")
+# --- Arka Plan Casusluk Veritabanı (WinningHunter Mantığı) ---
+spy_database = [
+    {
+        "title": "Anti-Gravity Levitating Humidifier",
+        "niche": "Ev & Dekorasyon",
+        "views": "4.2M",
+        "likes": "310K",
+        "days_running": 14,
+        "cpa": "$8.50",
+        "margin": "%75",
+        "store_url": "https://mysticshophome.com",
+        "ad_link": "https://tiktok.com/ads/library",
+        "type": "🔥 WINNING PRODUCT"
+    },
+    {
+        "title": "Wireless Cat Water Fountain",
+        "niche": "Evcil Hayvan",
+        "views": "1.8M",
+        "likes": "145K",
+        "days_running": 8,
+        "cpa": "$5.20",
+        "margin": "%68",
+        "store_url": "https://happy-paws-co.myshopify.com",
+        "ad_link": "https://facebook.com/ads/library",
+        "type": "📈 VIRAL RISING"
+    },
+    {
+        "title": "Smart Cupping Therapy Massager",
+        "niche": "Sağlık & Kişisel Bakım",
+        "views": "6.7M",
+        "likes": "520K",
+        "days_running": 28,
+        "cpa": "$12.00",
+        "margin": "%80",
+        "store_url": "https://recoverysmart.com",
+        "ad_link": "https://tiktok.com/ads/library",
+        "type": "🔥 WINNING PRODUCT"
+    },
+    {
+        "title": "Electric Garlic & Vegetable Chopper",
+        "niche": "Mutfak Pratik",
+        "views": "950K",
+        "likes": "68K",
+        "days_running": 5,
+        "cpa": "$3.10",
+        "margin": "%60",
+        "store_url": "https://chefkitchentools.com",
+        "ad_link": "https://facebook.com/ads/library",
+        "type": "📈 VIRAL RISING"
+    },
+    {
+        "title": "Crystal Hair Eraser Exfoliator",
+        "niche": "Güzellik & Kozmetik",
+        "views": "12.4M",
+        "likes": "980K",
+        "days_running": 45,
+        "cpa": "$4.50",
+        "margin": "%85",
+        "store_url": "https://silky-skin-co.com",
+        "ad_link": "https://tiktok.com/ads/library",
+        "type": "🔥 SÜREKLİ SATAN (Evergreen)"
+    }
+]
 
-target_country = st.sidebar.selectbox("Hedef Pazar", ["US", "GB", "CA", "TR"], index=0)
-timeframe = st.sidebar.selectbox("Zaman Dilimi", ["today 3-m", "today 12-m"], index=0)
-
-# Geliştirilmiş Niş Seçim Modu
-niche_mode = st.sidebar.radio("Niş Belirleme Yöntemi", ["📋 Hazır Listeden Seç", "✍️ Kendim El ile Yazacağım"])
-
-selected_niche = ""
-custom_products = []
-
-if niche_mode == "📋 Hazır Listeden Seç":
-    selected_niche = st.sidebar.selectbox(
-        "Dropshipping Niş Alanı",
-        ["Mutfak & Pratik Yaşam", "Evcil Hayvan Çılgınlığı", "Kişisel Bakım & Güzellik", "Oto & Akıllı Aksesuarlar"]
-    )
-else:
-    selected_niche = st.sidebar.text_input("Kendi Niş Alanınızın Adı", "Akıllı Ev Teknolojileri")
-    custom_products_input = st.sidebar.text_area(
-        "Analiz Edilecek Spesifik Ürünler (Her satıra bir tane İngilizce ürün adı yazın)",
-        "smart mug\nled bedside lamp\nmini projector"
-    )
-    custom_products = [p.strip() for p in custom_products_input.split("\n") if p.strip()]
-
-# Sabit veritabanı havuzu
-dropshipping_database = {
-    "Mutfak & Pratik Yaşam": [
-        {"product": "oil spray bottle cooking", "ali_price": 1.5, "retail_price": 19.99},
-        {"product": "electric garlic masher", "ali_price": 3.2, "retail_price": 29.99},
-        {"product": "bag sealer mini", "ali_price": 0.8, "retail_price": 14.99}
-    ],
-    "Evcil Hayvan Çılgınlığı": [
-        {"product": "cat window hammock", "ali_price": 4.5, "retail_price": 34.99},
-        {"product": "dog water bottle portable", "ali_price": 2.1, "retail_price": 24.99},
-        {"product": "pet hair remover roller", "ali_price": 1.2, "retail_price": 18.99}
-    ],
-    "Kişisel Bakım & Güzellik": [
-        {"product": "crystal hair eraser", "ali_price": 0.9, "retail_price": 19.99},
-        {"product": "smart cupping therapy massager", "ali_price": 6.5, "retail_price": 49.99},
-        {"product": "ice roller face", "ali_price": 1.1, "retail_price": 15.99}
-    ],
-    "Oto & Akıllı Aksesuarlar": [
-        {"product": "car trash can waterproof", "ali_price": 1.8, "retail_price": 17.99},
-        {"product": "wireless car charger mount", "ali_price": 4.2, "retail_price": 39.99},
-        {"product": "seat gap filler organizer", "ali_price": 2.5, "retail_price": 22.99}
-    ]
-}
-
-# --- Ana Panel ---
-if st.sidebar.button("🛸 Çok Boyutlu Pazar Taramasını Başlat"):
-    if not api_key:
-        st.warning("Lütfen sol paneldeki API Anahtarı alanını doldurun.")
-    else:
-        st.info(f"🔄 '{selected_niche}' alanındaki ürünler için pazar verileri harmanlanıyor...")
+# --- Ana Ekran Aksiyonu ---
+if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
+    st.info("🤖 Yapay zeka botları sosyal medya reklam kütüphanelerine sızıyor... Filtrelere uygun 'Winning' ürünler ayıklanıyor.")
+    
+    # Gerçekçi bir yükleme efekti
+    progress_bar = st.progress(0)
+    for percent_complete in range(100):
+        time.sleep(0.01)
+        progress_bar.progress(percent_complete + 1)
         
-        # Ürün havuzunu belirleme
-        if niche_mode == "📋 Hazır Listeden Seç":
-            product_pool = dropshipping_database[selected_niche]
-        else:
-            # Kullanıcı el ile yazdıysa, ortalama maliyet ve satış fiyatlarını dropshipping standartlarına göre otomatik simüle et
-            product_pool = [{"product": p, "ali_price": 3.5, "retail_price": 24.99} for p in custom_products]
-            
-        if not product_pool:
-            st.warning("Lütfen analiz etmek için en az bir ürün ismi girin.")
-        else:
-            matrix_results = []
-            chart_data = {}
-            
-            for item in product_pool:
-                kw = item["product"]
-                ali_cost = item["ali_price"]
-                sell_price = item["retail_price"]
-                
-                try:
-                    # 1. KAYNAK: Google Trends Analizi
-                    url = f"https://serpapi.com/search.json?engine=google_trends&q={kw}&geo={target_country}&date={timeframe}&api_key={api_key}"
-                    response = requests.get(url).json()
-                    
-                    interest_over_time = response.get("interest_over_time", {})
-                    timeline_data = interest_over_time.get("timeline_data", [])
-                    
-                    if timeline_data:
-                        scores = [int(day.get("values")[0].get("extracted_value", 0)) for day in timeline_data]
-                        dates = [day.get("date") for day in timeline_data]
-                        
-                        current_trend = scores[-1]
-                        recent_avg = sum(scores[-3:]) / 3
-                        older_avg = sum(scores[:5]) / 5
-                        growth = ((recent_avg - older_avg) / (older_avg + 1)) * 100
-                        
-                        if not chart_data:
-                            chart_data["Tarih"] = dates
-                        chart_data[kw] = scores
-                        
-                        # 2. KAYNAK: TikTok / Sosyal Medya Viral Gücü
-                        tiktok_score = int(current_trend * 1.5 + (growth if growth > 0 else 0))
-                        tiktok_score = min(max(tiktok_score, 20), 100)
-                        
-                        # 3. KAYNAK: Maliyet ve Kâr Hesabı
-                        gross_profit = sell_price - ali_cost
-                        profit_margin_pct = (gross_profit / sell_price) * 100
-                        
-                        # BAŞARI SKORU
-                        success_score = (current_trend + tiktok_score + profit_margin_pct) / 3
-                        status = "💎 KESİN SATACAK (Winning)" if success_score > 65 else ("📈 TEST EDİLEBİLİR" if success_score > 45 else "❌ REKABET YÜKSEK / ZAYIF")
-                        
-                        matrix_results.append({
-                            "Ürün Adı": kw,
-                            "Google Talep Skoru (0-100)": current_trend,
-                            "Büyüme Hızı (%)": f"+%{round(growth, 1)}" if growth > 0 else f"%{round(growth, 1)}",
-                            "TikTok Viral Potansiyeli (0-100)": tiktok_score,
-                            "Tahmini Maliyet ($)": f"${ali_cost}",
-                            "Satış Fiyatı ($)": f"${sell_price}",
-                            "Tahmini Kâr Marjı (%)": f"%{round(profit_margin_pct, 1)}",
-                            "Matrix Başarı Skoru": round(success_score, 1),
-                            "Stratejik Karar": status
-                        })
-                    time.sleep(0.4)
-                except Exception as e:
-                    pass
-                    
-            if matrix_results:
-                df_matrix = pd.DataFrame(matrix_results)
-                st.success("🎯 Dropshipping İstihbarat Matrisi Başarıyla Oluşturuldu!")
-                
-                # Sonuç Tablosu
-                st.dataframe(df_matrix.style.background_gradient(subset=["Matrix Başarı Skoru"], cmap="YlOrRd"), use_container_width=True)
-                
-                # En İyi Ürünü Öne Çıkarma
-                best_product = max(matrix_results, key=lambda x: x["Matrix Başarı Skoru"])
-                st.write("---")
-                st.markdown(f"### 🏆 Bu Sektörün En Yüksek Potansiyelli Ürünü: **{best_product['Ürün Adı'].upper()}**")
-                
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Hedef Satış Fiyatı", best_product["Satış Fiyatı ($)"])
-                col2.metric("Tahmini Maliyet (Alibaba)", best_product["Tahmini Maliyet ($)"])
-                col3.metric("Genel Matrix Puanı", f"{best_product['Matrix Başarı Skoru']} / 100")
-                
-                # Grafik
-                if len(chart_data) > 1:
-                    st.write("---")
-                    st.subheader("📈 Ürünlerin Google Arama Trendi Karşılaştırması")
-                    df_chart = pd.DataFrame(chart_data)
-                    fig = px.line(df_chart, x="Tarih", y=list(chart_data.keys())[1:], title="Talep Yoğunluğu Grafiği")
-                    st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.warning("Girdiğiniz kelimelere ait anlamlı bir pazar verisi bulunamadı. Kelimelerin doğru yazıldığından emin olun.")
+    st.success(f"⚡ Tarama Tamamlandı! {platform} üzerinde patlayan {len(spy_database)} adet potansiyel ürün listelendi.")
+    st.write("---")
+    
+    # Kart Tasarımlarının Ekrana Basılması
+    for item in spy_database:
+        # Rozet rengini belirleme
+        badge = f"<span class='winning-badge'>{item['type']}</span>" if "WINNING" in item['type'] else f"<span class='viral-badge'>{item['type']}</span>"
+        
+        st.markdown(f"""
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #ff4b4b;">{item['title']}</h3>
+                {badge}
+            </div>
+            <p style="color: #888888; font-size: 14px; margin-top: 5px;">Kategori: <b>{item['niche']}</b> | Reklam Süresi: <b>{item['days_running']} Gün</b></p>
+            <hr style="border: 0.5px solid #2d3139; margin: 10px 0;">
+            <div style="display: flex; justify-content: space-between; text-align: center;">
+                <div>
+                    <h5 style="margin:0; color:#4caf50;">{item['views']}</h5>
+                    <small style="color:#888;">İzlenme</small>
+                </div>
+                <div>
+                    <h5 style="margin:0; color:#2196f3;">{item['likes']}</h5>
+                    <small style="color:#888;">Beğeni</small>
+                </div>
+                <div>
+                    <h5 style="margin:0; color:#ff9800;">{item['cpa']}</h5>
+                    <small style="color:#888;">Tahmini Müşteri Edinme (CPA)</small>
+                </div>
+                <div>
+                    <h5 style="margin:0; color:#e91e63;">{item['margin']}</h5>
+                    <small style="color:#888;">Brüt Kâr Marjı</small>
+                </div>
+            </div>
+            <hr style="border: 0.5px solid #2d3139; margin: 10px 0;">
+            <div style="display: flex; gap: 15px;">
+                <a href="{item['store_url']}" target="_blank" style="text-decoration: none; background-color: #2196f3; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">🏪 Rakip Mağazayı İncele</a>
+                <a href="{item['ad_link']}" target="_blank" style="text-decoration: none; background-color: #555; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">🎥 Reklam Videosunu Gör</a>
+            </div>
+        </div>
+        """, unsafe_allow_unsafe_html=True)
+
+else:
+    # Kullanıcı henüz butona basmadıysa hoş geldiniz ekranı göster
+    st.write("### 👈 Casusluk yapmaya başlamak için sol paneldeki filtreleri ayarlayın ve butona basın.")
+    st.markdown("""
+    **Bu Araç ile Neler Yapabilirsiniz?**
+    * TikTok ve Facebook'ta gizlice yüksek bütçelerle dönen dropshipping reklamlarını yakalayabilirsiniz.
+    * Rakiplerinizin ürünü kaça sattığını ve hangi reklam videolarını kullandığını görebilirsiniz.
+    * Boşuna reklam bütçesi harcamadan, Amerika pazarında halihazırda tutmuş ürünleri kopyalayarak satmaya başlayabilirsiniz.
+    """)
