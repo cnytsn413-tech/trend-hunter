@@ -1,22 +1,9 @@
 import streamlit as st
 import pandas as pd
 import time
-import random
 
-# Sayfa Ayarları
+# Sayfa Ayarları - Güvenli ve Temiz Mod
 st.set_page_config(page_title="WinningHunter Clone - E-Com Spy Tool", layout="wide", initial_sidebar_state="expanded")
-
-# --- Stil ve Tema Ayarları (Hata düzeltildi) ---
-st.markdown("""
-    <style>
-    .main { background-color: #0e1117; }
-    .stButton>button { width: 100%; background-color: #ff4b4b; color: white; font-weight: bold; }
-    .stButton>button:hover { background-color: #ff3333; color: white; }
-    .card { background-color: #1e222b; padding: 20px; border-radius: 10px; border: 1px solid #2d3139; margin-bottom: 15px; }
-    .winning-badge { background-color: #28a745; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
-    .viral-badge { background-color: #fd7e14; color: white; padding: 3px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; }
-    </style>
-""", unsafe_allow_unsafe_html=True)
 
 st.title("🎯 WinningHunter Pro: Viral Dropshipping Spy Tool")
 st.subheader("Sosyal Medyada Gizlice Büyüyen ve Satış Rekorları Kıran Reklamları Yakalayın")
@@ -104,42 +91,31 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
     st.success(f"⚡ Tarama Tamamlandı! {platform} üzerinde patlayan {len(spy_database)} adet potansiyel ürün listelendi.")
     st.write("---")
     
+    # Güvenli Streamlit bileşenleri ile kart tasarımları oluşturuluyor
     for item in spy_database:
-        badge = f"<span class='winning-badge'>{item['type']}</span>" if "WINNING" in item['type'] else f"<span class='viral-badge'>{item['type']}</span>"
-        
-        st.markdown(f"""
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0; color: #ff4b4b;">{item['title']}</h3>
-                {badge}
-            </div>
-            <p style="color: #888888; font-size: 14px; margin-top: 5px;">Kategori: <b>{item['niche']}</b> | Reklam Süresi: <b>{item['days_running']} Gün</b></p>
-            <hr style="border: 0.5px solid #2d3139; margin: 10px 0;">
-            <div style="display: flex; justify-content: space-between; text-align: center;">
-                <div>
-                    <h5 style="margin:0; color:#4caf50;">{item['views']}</h5>
-                    <small style="color:#888;">İzlenme</small>
-                </div>
-                <div>
-                    <h5 style="margin:0; color:#2196f3;">{item['likes']}</h5>
-                    <small style="color:#888;">Beğeni</small>
-                </div>
-                <div>
-                    <h5 style="margin:0; color:#ff9800;">{item['cpa']}</h5>
-                    <small style="color:#888;">Tahmini CPA</small>
-                </div>
-                <div>
-                    <h5 style="margin:0; color:#e91e63;">{item['margin']}</h5>
-                    <small style="color:#888;">Brüt Kâr</small>
-                </div>
-            </div>
-            <hr style="border: 0.5px solid #2d3139; margin: 10px 0;">
-            <div style="display: flex; gap: 15px;">
-                <a href="{item['store_url']}" target="_blank" style="text-decoration: none; background-color: #2196f3; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">🏪 Rakip Mağazayı İncele</a>
-                <a href="{item['ad_link']}" target="_blank" style="text-decoration: none; background-color: #555; color: white; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">🎥 Reklam Videosunu Gör</a>
-            </div>
-        </div>
-        """, unsafe_allow_unsafe_html=True)
+        with st.container(border=True):
+            col_title, col_badge = st.columns([3, 1])
+            with col_title:
+                st.subheader(item['title'])
+                st.caption(f"Kategori: {item['niche']} | Reklam Süresi: {item['days_running']} Gün")
+            with col_badge:
+                st.warning(item['type'])
+            
+            # Metrikleri Göster
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("İzlenme", item['views'])
+            m2.metric("Beğeni", item['likes'])
+            m3.metric("Tahmini CPA", item['cpa'])
+            m4.metric("Brüt Kâr Marjı", item['margin'])
+            
+            # Butonlar
+            btn_col1, btn_col2, _ = st.columns([1, 1, 2])
+            with btn_col1:
+                st.link_button("🏪 Rakip Mağazayı İncele", item['store_url'], use_container_width=True)
+            with btn_col2:
+                st.link_button("🎥 Reklam Videosunu Gör", item['ad_link'], use_container_width=True)
+            
+            st.write("") # Boşluk
 
 else:
     st.write("### 👈 Casusluk yapmaya başlamak için sol paneldeki filtreleri ayarlayın ve butona basın.")
