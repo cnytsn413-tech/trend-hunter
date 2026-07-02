@@ -157,4 +157,19 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla") 
                     st.line_chart(chart_data)
                 
                 # Buton Satırları
-                btn_col1, btn_col2, btn
+                btn_col1, btn_col2, btn_col3 = st.columns(3)
+                
+                search_query = item['title'].replace(" ", "+")
+                aliexpress_url = f"https://www.aliexpress.com/w/wholesale-{search_query}.html"
+                
+                with btn_col1:
+                    st.link_button("🏪 Rakip Mağazayı İncele", item['store_url'], use_container_width=True)
+                with btn_col2:
+                    st.link_button("🇨🇳 AliExpress Tedarikçisini Bul", aliexpress_url, use_container_width=True)
+                with btn_col3:
+                    # --- ÖZELLİK 3: AI HEDEF KİTLE VE METİN ---
+                    with st.popover("🤖 AI Reklam Metni & Hedef Kitle Önerisi", use_container_width=True):
+                        st.markdown("### 📝 AI Reklam Metni (Hook)")
+                        st.code(item['hook'], language="text")
+                        st.markdown("### 🎯 Reklam Seti Hedef Kitle Önerisi")
+                        st.info(item['audience'])
