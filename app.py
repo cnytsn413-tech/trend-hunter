@@ -3,12 +3,13 @@ import pandas as pd
 import plotly.express as px
 import requests
 import time
+import random
 
 # Sayfa Genişlik Ayarı
-st.set_page_config(page_title="TrendHunter Pro - Akıllı Ürün Bulucu", layout="wide")
+st.set_page_config(page_title="TrendHunter Pro - Mikro Niş Ürün Bulucu", layout="wide")
 
-st.title("🚀 TrendHunter Pro: Otomatik Ürün Bulucu")
-st.subheader("İster kendi kelimelerinizi aratın, ister sistemin en popüler e-ticaret trendlerini otomatik bulmasını sağlayın.")
+st.title("🚀 TrendHunter Pro: Yapay Zeka Destekli Mikro-Niş Ürün Bulucu")
+st.subheader("Herkesin bildiği jenerik ürünleri değil, gizli kalmış derin e-ticaret nişlerini keşfedin.")
 
 # --- Sol Panel (Filtreler) ---
 st.sidebar.header("🔍 Ayarlar & Filtreler")
@@ -19,113 +20,125 @@ api_key = st.sidebar.text_input("SerpApi API Anahtarınız", type="password", he
 target_country = st.sidebar.selectbox("Hedef Ülke", ["US", "GB", "CA", "TR"], index=0)
 timeframe = st.sidebar.selectbox("Zaman Aralığı", ["today 3-m", "today 12-m", "now 7-d"], index=0)
 
-# Arama Modu Seçimi
-search_mode = st.sidebar.radio("Arama Modu", ["🤖 Otomatik En Popüler Ürünleri Bul", "✍️ Kendi Kelimelerimi Analiz Et"])
+# Niş Kategorileri
+ecommerce_category = st.sidebar.selectbox(
+    "Odaklanmak İstediğiniz Sektör",
+    ["Ev & Yaşam Gadgetları", "Mutfak / Pratik Yaşam", "Evcil Hayvan Ürünleri", "Kişisel Bakım & Sağlık", "Araba / Araç Aksesuarları"]
+)
 
-seed_keywords = []
-if search_mode == "✍️ Kendi Kelimelerimi Analiz Et":
-    seed_keywords = st.sidebar.text_area(
-        "Analiz Edilecek Anahtar Kelimeler (Her satıra bir tane)",
-        "portable blender\nled lights\nneck massager"
-    ).split("\n")
+# Arka planda jenerik kelimeleri derin nişlere dönüştüren havuz
+nich_pool = {
+    "Ev & Yaşam Gadgetları": [
+        "sunset lamp bluetooth", "anti gravity humidifier", "motion sensor under cabinet lights", 
+        "crystal hair eraser", "levitating moon lamp", "flame air diffuser"
+    ],
+    "Mutfak / Pratik Yaşam": [
+        "electric garlic masher", "oil spray bottle cooking", "automatic jar opener", 
+        "bag sealer mini", "cereal dispenser wall mounted", "rapid egg cooker"
+    ],
+    "Evcil Hayvan Ürünleri": [
+        "dog water bottle portable", "cat water fountain wireless", "pet hair remover roller", 
+        "self cleaning grooming brush", "dog seat cover car", "cat window hammock"
+    ],
+    "Kişisel Bakım & Sağlık": [
+        "neck stretcher chronic pain", "electric scalp massager", "posture corrector adjustable", 
+        "ice roller face", "smart cupping therapy massager", "teeth whitening kit led"
+    ],
+    "Araba / Araç Aksesuarları": [
+        "car trash can waterproof", "wireless car charger mount", "car dent repair puller", 
+        "seat gap filler organizer", "hud display car speed", "car windshield sun shade umbrella"
+    ]
+}
 
 # --- Ana Panel ---
-if st.sidebar.button("Sistemi Çalıştır ve Trendleri Getir"):
+if st.sidebar.button("🔥 Mikro-Niş Ürünleri Tıkla ve Analiz Et"):
     if not api_key:
         st.warning("Lütfen sol paneldeki API Anahtarı alanını doldurun.")
     else:
+        st.info(f"🔮 '{ecommerce_category}' sektörüne ait derin pazar verileri ve alt nişler analiz ediliyor...")
+        
+        # Seçilen kategoriden derin ürün fikirlerini çekiyoruz
+        base_keywords = nich_pool[ecommerce_category]
         keywords = []
         
-        # MOD 1: OTOMATİK KEŞİF
-        if search_mode == "🤖 Otomatik En Popüler Ürünleri Bul":
-            st.info("E-Ticaret dünyasında şu an en çok yükselen genel trendler ve niş ürünler sorgulanıyor...")
+        # Her bir derin niş kelimenin Google Trends'teki yükselen alışveriş alt kelimelerini (Breakout) topluyoruz
+        for base_kw in base_keywords:
             try:
-                # Alışveriş (Shopping) kategorisindeki genel yükselen trendleri SerpApi üzerinden çekiyoruz
-                # cat=18, Google Trends'te Alışveriş (Shopping) kategorisidir.
-                url = f"https://serpapi.com/search.json?engine=google_trends_trending_searches&trend_type=realtime&geo={target_country}&cat=s&api_key={api_key}"
+                url = f"https://serpapi.com/search.json?engine=google_trends&q={base_kw}&geo={target_country}&date={timeframe}&api_key={api_key}"
                 response = requests.get(url).json()
                 
-                # Gerçek zamanlı trendlerden kelimeleri ayıkla
-                trending_searches = response.get("trending_searches", [])
-                for search in trending_searches[:10]: # En popüler 10 trendi alıyoruz
-                    query = search.get("title")
-                    if query:
-                        keywords.append(query)
+                related_queries = response.get("related_queries", {})
+                rising_queries = related_queries.get("rising", [])
                 
-                # Eğer gerçek zamanlı veri o an boş dönerse, e-ticaret için en popüler hazır niş kelimeleri havuzdan seçer
-                if not keywords:
-                    keywords = ["viral product", "smart home gadget", "fitness tracking", "eco friendly packaging", "ergonomic office"]
+                # Eğer o niş kelimede o an patlayan (Breakout) veya %300+ büyüyen çok spesifik alt sorgular varsa onları yakala
+                found_sub_niche = False
+                for q in rising_queries:
+                    val = str(q.get("value", ""))
+                    if "Breakout" in val or (val.replace('%','').replace('+','').isdigit() and int(val.replace('%','').replace('+','')) > 300):
+                        keywords.append(q.get("query"))
+                        found_sub_niche = True
+                
+                # Eğer spesifik alt arama o anlık yoksa ana niş kelimeyi listeye dahil et
+                if not found_sub_niche:
+                    keywords.append(base_kw)
                     
-            except Exception as e:
-                st.error("Otomatik trend listesi alınırken bir sorun oluştu, yedek liste devreye giriyor.")
-                keywords = ["portable blender", "led lights", "neck massager", "pet grooming", "smart mug"]
+                time.sleep(0.3)
+            except:
+                keywords.append(base_kw)
         
-        # MOD 2: MANUEL KELİME
-        else:
-            keywords = [kw.strip() for kw in seed_keywords if kw.strip()]
+        # Benzersiz olanları filtrele ve ilk 6-7 tanesini derin analize al
+        keywords = list(set(keywords))[:7]
         
-        # --- VERİ ANALİZ AŞAMASI (Ortak Kısım) ---
-        if not keywords:
-            st.warning("Analiz edilecek kelime bulunamadı.")
-        else:
-            st.write(f"📊 **Analiz Edilen Kelimeler:** {', '.join(keywords)}")
-            st.info("Kelimelerin büyüme potansiyelleri ve detayları hesaplanıyor...")
-            
-            results = []
-            chart_data = {}
-            
-            for kw in keywords:
-                try:
-                    url = f"https://serpapi.com/search.json?engine=google_trends&q={kw}&geo={target_country}&date={timeframe}&api_key={api_key}"
-                    response = requests.get(url).json()
+        # --- VERİ ANALİZ AŞAMASI ---
+        st.write(f"🎯 **Sizin için Keşfedilen Mikro-Niş Ürünler:** {', '.join([f'`{k}`' for k in keywords])}")
+        
+        results = []
+        chart_data = {}
+        
+        for kw in keywords:
+            try:
+                url = f"https://serpapi.com/search.json?engine=google_trends&q={kw}&geo={target_country}&date={timeframe}&api_key={api_key}"
+                response = requests.get(url).json()
+                
+                interest_over_time = response.get("interest_over_time", {})
+                timeline_data = interest_over_time.get("timeline_data", [])
+                
+                if timeline_data:
+                    scores = [int(day.get("values")[0].get("extracted_value", 0)) for day in timeline_data]
+                    dates = [day.get("date") for day in timeline_data]
                     
-                    interest_over_time = response.get("interest_over_time", {})
-                    timeline_data = interest_over_time.get("timeline_data", [])
-                    
-                    if timeline_data:
-                        scores = [int(day.get("values")[0].get("extracted_value", 0)) for day in timeline_data]
-                        dates = [day.get("date") for day in timeline_data]
+                    if len(scores) >= 5:
+                        recent_score = sum(scores[-3:]) / 3
+                        older_score = sum(scores[:5]) / 5
+                        growth = ((recent_score - older_score) / (older_score + 1)) * 100
+                        current_trend_value = scores[-1]
                         
-                        if len(scores) >= 5:
-                            recent_score = sum(scores[-3:]) / 3
-                            older_score = sum(scores[:5]) / 5
-                            growth = ((recent_score - older_score) / (older_score + 1)) * 100
-                            current_trend_value = scores[-1]
-                            
-                            if not chart_data:
-                                chart_data["Tarih"] = dates
-                            chart_data[kw] = scores
-                            
-                            related_queries = response.get("related_queries", {})
-                            rising_queries = related_queries.get("rising", [])
-                            breakout_queries = [q.get("query") for q in rising_queries if q.get("value") == "Breakout"][:3]
-                            
-                            results.append({
-                                "Ürün / Kelime": kw,
-                                "Mevcut Trend Skoru (0-100)": int(current_trend_value),
-                                "Tahmini Büyüme Oranı (%)": round(growth, 2),
-                                "Breakout Alt Başlıklar": ", ".join(breakout_queries) if breakout_queries else "Yok"
-                            })
-                    time.sleep(0.5)
-                except:
-                    pass
+                        if not chart_data:
+                            chart_data["Tarih"] = dates
+                        chart_data[kw] = scores
+                        
+                        # TikTok veya Facebook reklamlarında aranabilecek hedef etiket önerisi
+                        results.append({
+                            "Spesifik Ürün / Niş": kw,
+                            "Anlık Talep Gücü (0-100)": int(current_trend_value),
+                            "Son Dönem Büyüme Hızı (%)": f"+%{round(growth, 1)}" if growth > 0 else f"%{round(growth, 1)}",
+                            "E-Ticaret Potansiyeli": "🔥 KAZANAN (Winning Product)" if growth > 40 and current_trend_value > 50 
+                                                     else ("📈 YÜKSELEN TREND" if growth > 10 else "🔍 SABİT PAZAR")
+                        })
+                time.sleep(0.4)
+            except:
+                pass
+        
+        if results:
+            df_results = pd.DataFrame(results)
+            st.success("Derinlemesine Mikro-Niş Analizi Tamamlandı!")
+            st.dataframe(df_results, use_container_width=True)
             
-            if results:
-                df_results = pd.DataFrame(results)
-                
-                df_results['Potansiyel Durumu'] = df_results.apply(
-                    lambda row: "🔥 ÇOK YÜKSEK (Winning)" if row['Tahmini Büyüme Oranı (%)'] > 50 and row['Mevcut Trend Skoru (0-100)'] > 60
-                    else ("📈 YÜKSELEN" if row['Tahmini Büyüme Oranı (%)'] > 10 else "📉 DURAĞAN/DÜŞÜŞTE"), axis=1
-                )
-                
-                st.success("Analiz Hatasız Tamamlandı!")
-                st.dataframe(df_results)
-                
-                if len(chart_data) > 1:
-                    st.write("---")
-                    st.subheader("📊 Zaman İçindeki Değişim Grafiği")
-                    df_chart = pd.DataFrame(chart_data)
-                    fig = px.line(df_chart, x="Tarih", y=list(chart_data.keys())[1:], title="Otomatik Keşfedilen Ürünlerin Popülerlik Trendi")
-                    st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.warning("Seçilen ülke veya zaman diliminde analiz edilecek anlamlı bir trend verisi bulunamadı.")
+            if len(chart_data) > 1:
+                st.write("---")
+                st.subheader("📊 Niş Ürünlerin Talep Karşılaştırma Grafiği")
+                df_chart = pd.DataFrame(chart_data)
+                fig = px.line(df_chart, x="Tarih", y=list(chart_data.keys())[1:], title="Mikro-Nişlerin Güncel Rekabet ve Talep Trendi")
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.warning("Veriler işlenirken bir kısıtlama oluştu. Lütfen birkaç saniye sonra tekrar deneyin.")
