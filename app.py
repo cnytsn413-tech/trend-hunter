@@ -210,21 +210,5 @@ spy_database = {
             "days_running": 14, 
             "cpa": "$4.10", 
             "margin": "%73", 
-            "spend": 280, 
-            "store_url": "https://alpha-grip.co.uk", 
-            "type": "🔥 WINNING PRODUCT", 
-            "hook": "Level up your forearm veins and crush your lifting PRs. 🦾 Adjustable resistance up to 60kg."
-        }
-    ],
-    "CA (Kanada)": [
-        {
-            "title": "Anti-Gravity Levitating Humidifier", 
-            "niche": "Ev & Dekorasyon", 
-            "views": "1.1M", 
-            "likes": 95000, 
-            "days_running": 10, 
-            "cpa": "$9.00", 
-            "margin": "%75", 
-            "spend": 210, 
-            "store_url": "https://mysticshophome.com",
+            "spend": 280,
     
