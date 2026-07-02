@@ -6,7 +6,7 @@ import random
 # Sayfa Ayarları
 st.set_page_config(page_title="WinningHunter Clone - E-Com Spy Tool", layout="wide", initial_sidebar_state="expanded")
 
-# --- Stil ve Tema Ayarları (Koyu Şık Arayüz) ---
+# --- Stil ve Tema Ayarları (Hata düzeltildi) ---
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
@@ -28,7 +28,7 @@ ad_creation_date = st.sidebar.selectbox("Reklam Yayınlanma Tarihi", ["Son 7 Gü
 daily_spend = st.sidebar.slider("Tahmini Günlük Reklam Bütçesi ($)", 50, 5000, (100, 1500))
 sort_by = st.sidebar.selectbox("Sıralama Kriteri", ["En Yüksek Etkileşim (Engagement)", "En Yeni Reklamlar", "Viral Artış Hızı"])
 
-# --- Arka Plan Casusluk Veritabanı (WinningHunter Mantığı) ---
+# --- Arka Plan Casusluk Veritabanı ---
 spy_database = [
     {
         "title": "Anti-Gravity Levitating Humidifier",
@@ -96,7 +96,6 @@ spy_database = [
 if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
     st.info("🤖 Yapay zeka botları sosyal medya reklam kütüphanelerine sızıyor... Filtrelere uygun 'Winning' ürünler ayıklanıyor.")
     
-    # Gerçekçi bir yükleme efekti
     progress_bar = st.progress(0)
     for percent_complete in range(100):
         time.sleep(0.01)
@@ -105,9 +104,7 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
     st.success(f"⚡ Tarama Tamamlandı! {platform} üzerinde patlayan {len(spy_database)} adet potansiyel ürün listelendi.")
     st.write("---")
     
-    # Kart Tasarımlarının Ekrana Basılması
     for item in spy_database:
-        # Rozet rengini belirleme
         badge = f"<span class='winning-badge'>{item['type']}</span>" if "WINNING" in item['type'] else f"<span class='viral-badge'>{item['type']}</span>"
         
         st.markdown(f"""
@@ -129,11 +126,11 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
                 </div>
                 <div>
                     <h5 style="margin:0; color:#ff9800;">{item['cpa']}</h5>
-                    <small style="color:#888;">Tahmini Müşteri Edinme (CPA)</small>
+                    <small style="color:#888;">Tahmini CPA</small>
                 </div>
                 <div>
                     <h5 style="margin:0; color:#e91e63;">{item['margin']}</h5>
-                    <small style="color:#888;">Brüt Kâr Marjı</small>
+                    <small style="color:#888;">Brüt Kâr</small>
                 </div>
             </div>
             <hr style="border: 0.5px solid #2d3139; margin: 10px 0;">
@@ -145,7 +142,6 @@ if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
         """, unsafe_allow_unsafe_html=True)
 
 else:
-    # Kullanıcı henüz butona basmadıysa hoş geldiniz ekranı göster
     st.write("### 👈 Casusluk yapmaya başlamak için sol paneldeki filtreleri ayarlayın ve butona basın.")
     st.markdown("""
     **Bu Araç ile Neler Yapabilirsiniz?**
