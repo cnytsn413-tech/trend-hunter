@@ -47,7 +47,14 @@ spy_database = {
 if st.sidebar.button("🕵️‍♂️ Canlı Reklam Ağını Taramaya Başla"):
     st.info(f"🤖 Yapay zeka botları {target_country} bölgesinde aktif {platform} reklam harcamalarını süzüyor...")
     
+    # Eksik olan parantez hatası burada giderildi
     progress_bar = st.progress(0)
     for percent_complete in range(100):
         time.sleep(0.005)
-        progress_bar.progress(percent_complete + 1
+        progress_bar.progress(percent_complete + 1)
+        
+    # Filtreleme Mantığı
+    raw_ads = spy_database.get(target_country, [])
+    filtered_ads = [ad for ad in raw_ads if min_spend <= ad["spend"] <= max_spend]
+    
+    # Sı
